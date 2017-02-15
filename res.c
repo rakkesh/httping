@@ -4,7 +4,6 @@
 #include <sys/time.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#include <libintl.h>
 #include <netdb.h>
 #include <errno.h>
 #include <stdio.h>
@@ -32,7 +31,7 @@ int resolve_host(const char *host, struct addrinfo **ai, char use_ipv6, int port
 	rc = getaddrinfo(host, servname, &myaddr, ai);
 
 	if (rc != 0)
-		set_error(gettext("Resolving %s %sfailed: %s"), host, use_ipv6 ? gettext("(IPv6) ") : "", gai_strerror(rc));
+		set_error("Resolving %s %sfailed: %s", host, use_ipv6 ? "(IPv6) " : "", gai_strerror(rc));
 
 	return rc;
 }
@@ -67,7 +66,7 @@ int resolve_host_ipv4(const char *host, struct sockaddr_in *addr)
 
 	if (hostdnsentries == NULL)
 	{
-		set_error(gettext("Problem resolving %s (IPv4): %s"), host, hstrerror(h_errno));
+		set_error("Problem resolving %s (IPv4): %s", host, hstrerror(h_errno));
 
 		return -1;
 	}

@@ -3,7 +3,6 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/utsname.h>
-#include <libintl.h>
 
 #include "gen.h"
 #include "main.h"
@@ -74,23 +73,23 @@ void new_version_alert(void)
 
 void version(void)
 {
-	fprintf(stderr, gettext("HTTPing v" VERSION ", (C) 2003-2016 folkert@vanheusden.com\n"));
+	fprintf(stderr, "HTTPing v" VERSION ", (C) 2003-2016 folkert@vanheusden.com\n");
 #ifndef NO_SSL
-	fprintf(stderr, gettext(" * SSL support included (-l)\n"));
+	fprintf(stderr, " * SSL support included (-l)\n");
 #endif
 
 #ifdef NC
 #ifdef FW
-	fprintf(stderr, gettext(" * ncurses interface with FFT included (-K)\n"));
+	fprintf(stderr, " * ncurses interface with FFT included (-K)\n");
 #else
-	fprintf(stderr, gettext(" * ncurses interface included (-K)\n"));
+	fprintf(stderr, " * ncurses interface included (-K)\n");
 #endif
 #endif
 
 #ifdef TCP_TFO
-	fprintf(stderr, gettext(" * TFO (TCP fast open) support included (-F)\n"));
+	fprintf(stderr, " * TFO (TCP fast open) support included (-F)\n");
 #endif
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, "\n");
 }
 
 void format_help(const char *short_str, const char *long_str, const char *descr)
@@ -174,127 +173,127 @@ void usage(const char *me)
 	char host[256] = { 0 };
 
 	/* where to connect to */
-	fprintf(stderr, gettext(" *** where to connect to ***\n"));
-	format_help("-g x", "--url", gettext("URL to ping (e.g. -g http://localhost/)"));
-	format_help("-h x", "--hostname", gettext("hostname to ping (e.g. localhost) - use either -g or -h"));
-	format_help("-p x", "--port", gettext("portnumber (e.g. 80) - use with -h"));
-	format_help("-6", "--ipv6", gettext("use IPv6 when resolving/connecting"));
+	fprintf(stderr, " *** where to connect to ***\n");
+	format_help("-g x", "--url", "URL to ping (e.g. -g http://localhost/)");
+	format_help("-h x", "--hostname", "hostname to ping (e.g. localhost) - use either -g or -h");
+	format_help("-p x", "--port", "portnumber (e.g. 80) - use with -h");
+	format_help("-6", "--ipv6", "use IPv6 when resolving/connecting");
 #ifndef NO_SSL
-	format_help("-l", "--use-ssl", gettext("connect using SSL. pinging an https URL automatically enables this setting"));
+	format_help("-l", "--use-ssl", "connect using SSL. pinging an https URL automatically enables this setting");
 #endif
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, "\n");
 
 	/* proxy settings */
-	fprintf(stderr, gettext(" *** proxy settings ***\n"));
-	format_help("-x x", "--proxy", gettext("x should be \"host:port\" which are the network settings of the http/https proxy server. ipv6 ip-address should be \"[ip:address]:port\""));
-	format_help("-E", NULL, gettext("fetch proxy settings from environment variables"));
-	format_help(NULL, "--proxy-user x", gettext("username for authentication against proxy"));
-	format_help(NULL, "--proxy-password x", gettext("password for authentication against proxy"));
-	format_help(NULL, "--proxy-password-file x", gettext("read password for proxy authentication from file x"));
-	format_help("-5", NULL, gettext("proxy is a socks5 server"));
-	format_help(NULL, "--proxy-buster x", gettext("adds \"&x=[random value]\" to the request URL"));
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, " *** proxy settings ***\n");
+	format_help("-x x", "--proxy", "x should be \"host:port\" which are the network settings of the http/https proxy server. ipv6 ip-address should be \"[ip:address]:port\"");
+	format_help("-E", NULL, "fetch proxy settings from environment variables");
+	format_help(NULL, "--proxy-user x", "username for authentication against proxy");
+	format_help(NULL, "--proxy-password x", "password for authentication against proxy");
+	format_help(NULL, "--proxy-password-file x", "read password for proxy authentication from file x");
+	format_help("-5", NULL, "proxy is a socks5 server");
+	format_help(NULL, "--proxy-buster x", "adds \"&x=[random value]\" to the request URL");
+	fprintf(stderr, "\n");
 
 	/* timing settings */
-	fprintf(stderr, gettext(" *** timing settings ***\n"));
-	format_help("-c x", "--count", gettext("how many times to ping"));
-	format_help("-i x", "--interval", gettext("delay between each ping"));
-	format_help("-t x", "--timeout", gettext("timeout (default: 30s)"));
-	format_help(NULL, "--ai / --adaptive-interval", gettext("execute pings at multiples of interval relative to start, automatically enabled in ncurses output mode"));
-	format_help("-f", "--flood", gettext("flood connect (no delays)"));
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, " *** timing settings ***\n");
+	format_help("-c x", "--count", "how many times to ping");
+	format_help("-i x", "--interval", "delay between each ping");
+	format_help("-t x", "--timeout", "timeout (default: 30s)");
+	format_help(NULL, "--ai / --adaptive-interval", "execute pings at multiples of interval relative to start, automatically enabled in ncurses output mode");
+	format_help("-f", "--flood", "flood connect (no delays)");
+	fprintf(stderr, "\n");
 
 	/* http settings */
-	fprintf(stderr, gettext(" *** HTTP settings ***\n"));
-	format_help("-Z", "--no-cache", gettext("ask any proxies on the way not to cache the requests"));
-	format_help(NULL, "--divert-connect", gettext("connect to a different host than in the URL given"));
-	format_help(NULL, "--keep-cookies", gettext("return the cookies given by the HTTP server in the following request(s)"));
-	format_help(NULL, "--no-host-header", gettext("do not add \"Host:\"-line to the request headers"));
-	format_help("-Q", "--persistent-connections", gettext("use a persistent connection, i.e. reuse the same TCP connection for multiple HTTP requests. usually possible when 'Connection: Keep-Alive' is sent by server. adds a 'C' to the output if httping had to reconnect"));
-	format_help("-I x", "--user-agent", gettext("use 'x' for the UserAgent header"));
-	format_help("-R x", "--referer", gettext("use 'x' for the Referer header"));
-	format_help(NULL, "--header", gettext("adds an extra request-header"));
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, " *** HTTP settings ***\n");
+	format_help("-Z", "--no-cache", "ask any proxies on the way not to cache the requests");
+	format_help(NULL, "--divert-connect", "connect to a different host than in the URL given");
+	format_help(NULL, "--keep-cookies", "return the cookies given by the HTTP server in the following request(s)");
+	format_help(NULL, "--no-host-header", "do not add \"Host:\"-line to the request headers");
+	format_help("-Q", "--persistent-connections", "use a persistent connection, i.e. reuse the same TCP connection for multiple HTTP requests. usually possible when 'Connection: Keep-Alive' is sent by server. adds a 'C' to the output if httping had to reconnect");
+	format_help("-I x", "--user-agent", "use 'x' for the UserAgent header");
+	format_help("-R x", "--referer", "use 'x' for the Referer header");
+	format_help(NULL, "--header", "adds an extra request-header");
+	fprintf(stderr, "\n");
 
 	/* network settings */
-	fprintf(stderr, gettext(" *** networking settings ***\n"));
-	format_help(NULL, "--max-mtu", gettext("limit the MTU size"));
-	format_help(NULL, "--no-tcp-nodelay", gettext("do not disable Naggle"));
-	format_help(NULL, "--recv-buffer", gettext("receive buffer size"));
-	format_help(NULL, "--tx-buffer", gettext("transmit buffer size"));
-	format_help("-r", "--resolve-once", gettext("resolve hostname only once (useful when pinging roundrobin DNS: also takes the first DNS lookup out of the loop so that the first measurement is also correct)"));
-	format_help("-W", NULL, gettext("do not abort the program if resolving failed: keep retrying"));
-	format_help("-y x", "--bind-to", gettext("bind to an ip-address (and thus interface) with an optional port"));
+	fprintf(stderr, " *** networking settings ***\n");
+	format_help(NULL, "--max-mtu", "limit the MTU size");
+	format_help(NULL, "--no-tcp-nodelay", "do not disable Naggle");
+	format_help(NULL, "--recv-buffer", "receive buffer size");
+	format_help(NULL, "--tx-buffer", "transmit buffer size");
+	format_help("-r", "--resolve-once", "resolve hostname only once (useful when pinging roundrobin DNS: also takes the first DNS lookup out of the loop so that the first measurement is also correct)");
+	format_help("-W", NULL, "do not abort the program if resolving failed: keep retrying");
+	format_help("-y x", "--bind-to", "bind to an ip-address (and thus interface) with an optional port");
 #ifdef TCP_TFO
-	format_help("-F", "--tcp-fast-open", gettext("\"TCP fast open\" (TFO), reduces the latency of TCP connects"));
+	format_help("-F", "--tcp-fast-open", "\"TCP fast open\" (TFO), reduces the latency of TCP connects");
 #endif
 #ifdef linux
-	format_help(NULL, "--priority", gettext("set priority of packets"));
+	format_help(NULL, "--priority", "set priority of packets");
 #endif
-	format_help(NULL, "--tos", gettext("set TOS (type of service)"));
-	fprintf(stderr, gettext("\n"));
+	format_help(NULL, "--tos", "set TOS (type of service)");
+	fprintf(stderr, "\n");
 
 	/* http authentication */
-	fprintf(stderr, gettext(" *** HTTP authentication ***\n"));
-	format_help("-A", "--basic-auth", gettext("activate (\"basic\") authentication"));
-	format_help("-U x", "--username", gettext("username for authentication"));
-	format_help("-P x", "--password", gettext("password for authentication"));
-	format_help("-T x", NULL, gettext("read the password fom the file 'x' (replacement for -P)"));
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, " *** HTTP authentication ***\n");
+	format_help("-A", "--basic-auth", "activate (\"basic\") authentication");
+	format_help("-U x", "--username", "username for authentication");
+	format_help("-P x", "--password", "password for authentication");
+	format_help("-T x", NULL, "read the password fom the file 'x' (replacement for -P)");
+	fprintf(stderr, "\n");
 
 	/* output settings */
-	fprintf(stderr, gettext(" *** output settings ***\n"));
-	format_help("-s", "--show-statuscodes", gettext("show statuscodes"));
-	format_help("-S", "--split-time", gettext("split measured time in its individual components (resolve, connect, send, etc."));
-	format_help(NULL, "--threshold-red", gettext("from what ping value to show the value in red (must be bigger than yellow), only in color mode (-Y)"));
-	format_help(NULL, "--threshold-yellow", gettext("from what ping value to show the value in yellow"));
-	format_help(NULL, "--threshold-show", gettext("from what ping value to show the results"));
-	format_help(NULL, "--timestamp / --ts", gettext("put a timestamp before the measured values, use -v to include the date and -vv to show in microseconds"));
-	format_help(NULL, "--aggregate x[,y[,z]]", gettext("show an aggregate each x[/y[/z[/etc]]] seconds"));
+	fprintf(stderr, " *** output settings ***\n");
+	format_help("-s", "--show-statuscodes", "show statuscodes");
+	format_help("-S", "--split-time", "split measured time in its individual components (resolve, connect, send, etc.");
+	format_help(NULL, "--threshold-red", "from what ping value to show the value in red (must be bigger than yellow), only in color mode (-Y)");
+	format_help(NULL, "--threshold-yellow", "from what ping value to show the value in yellow");
+	format_help(NULL, "--threshold-show", "from what ping value to show the results");
+	format_help(NULL, "--timestamp / --ts", "put a timestamp before the measured values, use -v to include the date and -vv to show in microseconds");
+	format_help(NULL, "--aggregate x[,y[,z]]", "show an aggregate each x[/y[/z[/etc]]] seconds");
 #ifndef NO_SSL
-	format_help("-z", "--show-fingerprint", gettext("show fingerprint (SSL)"));
+	format_help("-z", "--show-fingerprint", "show fingerprint (SSL)");
 #endif
-	format_help("-v", NULL, gettext("verbose mode"));
-	fprintf(stderr, gettext("\n"));
+	format_help("-v", NULL, "verbose mode");
+	fprintf(stderr, "\n");
 
 	/* GET settings */
-	fprintf(stderr, gettext(" *** \"GET\" (instead of HTTP \"HEAD\") settings ***\n"));
-	format_help("-G", "--get-request", gettext("do a GET request instead of HEAD (read the contents of the page as well)"));
-	format_help("-b", "--show-transfer-speed", gettext("show transfer speed in KB/s (use with -G)"));
-	format_help("-B", "--show-xfer-speed-compressed", gettext("like -b but use compression if available"));
-	format_help("-L x", "--data-limit", gettext("limit the amount of data transferred (for -b) to 'x' (in bytes)"));
-	format_help("-X", "--show-kb", gettext("show the number of KB transferred (for -b)"));
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, " *** \"GET\" (instead of HTTP \"HEAD\") settings ***\n");
+	format_help("-G", "--get-request", "do a GET request instead of HEAD (read the contents of the page as well)");
+	format_help("-b", "--show-transfer-speed", "show transfer speed in KB/s (use with -G)");
+	format_help("-B", "--show-xfer-speed-compressed", "like -b but use compression if available");
+	format_help("-L x", "--data-limit", "limit the amount of data transferred (for -b) to 'x' (in bytes)");
+	format_help("-X", "--show-kb", "show the number of KB transferred (for -b)");
+	fprintf(stderr, "\n");
 
 	/* output mode settings */
-	fprintf(stderr, gettext(" *** output mode settings ***\n"));
-	format_help("-q", "--quiet", gettext("quiet, only returncode"));
-	format_help("-m", "--parseable-output", gettext("give machine parseable output (see also -o and -e)"));
-	format_help("-M", NULL, gettext("json output, cannot be combined with -m"));
-	format_help("-o rc,rc,...", "--ok-result-codes", gettext("what http results codes indicate 'ok' comma separated WITHOUT spaces inbetween default is 200, use with -e"));
-	format_help("-e x", "--result-string", gettext("string to display when http result code doesn't match"));
-	format_help("-n warn,crit", "--nagios-mode-1 / --nagios-mode-2", gettext("Nagios-mode: return 1 when avg. response time >= warn, 2 if >= crit, otherwhise return 0"));
-	format_help("-N x", NULL, gettext("Nagios mode 2: return 0 when all fine, 'x' when anything failes"));
-	format_help("-C cookie=value", "--cookie", gettext("add a cookie to the request"));
-	format_help("-Y", "--colors", gettext("add colors"));
-	format_help("-a", "--audible-ping", gettext("audible ping"));
-	fprintf(stderr, gettext("\n"));
+	fprintf(stderr, " *** output mode settings ***\n");
+	format_help("-q", "--quiet", "quiet, only returncode");
+	format_help("-m", "--parseable-output", "give machine parseable output (see also -o and -e)");
+	format_help("-M", NULL, "json output, cannot be combined with -m");
+	format_help("-o rc,rc,...", "--ok-result-codes", "what http results codes indicate 'ok' comma separated WITHOUT spaces inbetween default is 200, use with -e");
+	format_help("-e x", "--result-string", "string to display when http result code doesn't match");
+	format_help("-n warn,crit", "--nagios-mode-1 / --nagios-mode-2", "Nagios-mode: return 1 when avg. response time >= warn, 2 if >= crit, otherwhise return 0");
+	format_help("-N x", NULL, "Nagios mode 2: return 0 when all fine, 'x' when anything failes");
+	format_help("-C cookie=value", "--cookie", "add a cookie to the request");
+	format_help("-Y", "--colors", "add colors");
+	format_help("-a", "--audible-ping", "audible ping");
+	fprintf(stderr, "\n");
 
 	/* GUI/ncurses mode */
 #if defined(NC)
-	fprintf(stderr, gettext(" *** GUI/ncurses mode settings ***\n"));
-	format_help("-K", "--ncurses / --gui", gettext("ncurses/GUI mode"));
+	fprintf(stderr, " *** GUI/ncurses mode settings ***\n");
+	format_help("-K", "--ncurses / --gui", "ncurses/GUI mode");
 #if defined(FW)
-	format_help(NULL, "--draw-phase", gettext("draw phase (fourier transform) in gui"));
+	format_help(NULL, "--draw-phase", "draw phase (fourier transform) in gui");
 #endif
-	format_help(NULL, "--slow-log", gettext("when the duration is x or more, show ping line in the slow log window (the middle window)"));
-	format_help(NULL, "--graph-limit x", gettext("do not scale to values above x"));
-	format_help("-D", "--no-graph", gettext("do not show graphs (in ncurses/GUI mode)"));
-	fprintf(stderr, gettext("\n"));
+	format_help(NULL, "--slow-log", "when the duration is x or more, show ping line in the slow log window (the middle window)");
+	format_help(NULL, "--graph-limit x", "do not scale to values above x");
+	format_help("-D", "--no-graph", "do not show graphs (in ncurses/GUI mode)");
+	fprintf(stderr, "\n");
 #endif
 
-	format_help("-V", "--version", gettext("show the version"));
-	fprintf(stderr, gettext("\n"));
+	format_help("-V", "--version", "show the version");
+	fprintf(stderr, "\n");
 
 	dummy = getenv("TERM");
 	if (dummy)
@@ -306,7 +305,7 @@ void usage(const char *me)
 	if (gethostname(host, sizeof host))
 		strcpy(host, "localhost");
 
-	fprintf(stderr, gettext("Example:\n"));
+	fprintf(stderr, "Example:\n");
 	fprintf(stderr, "\t%s %s%s -s -Z\n\n", me, host, has_color ? " -Y" : "");
 
 	new_version_alert();

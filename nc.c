@@ -1,6 +1,5 @@
 #define _GNU_SOURCE
 #include <stdio.h>
-#include <libintl.h>
 #include <math.h>
 #include <poll.h>
 #include <stdarg.h>
@@ -53,7 +52,7 @@ void update_terminal(void)
 
 void create_windows(void)
 {
-	char *r_a = gettext("realloc issue");
+	char *r_a = "realloc issue";
 	int nr = 0;
 
 	if (w_stats)
@@ -538,7 +537,7 @@ void draw_fft(void)
 	avg_freq = (hz / (double)max_x) * avg_freq_index;
 
 	wattron(w_line1, A_REVERSE);
-	myprintloc(w_line1, 0, 38, gettext("highest: %6.2fHz, avg: %6.2fHz"), highest_freq, avg_freq);
+	myprintloc(w_line1, 0, 38, "highest: %6.2fHz, avg: %6.2fHz", highest_freq, avg_freq);
 	wattroff(w_line1, A_REVERSE);
 	wnoutrefresh(w_line1);
 
@@ -667,7 +666,7 @@ void draw_graph(double val)
 			diff = 1.0;
 
 		wattron(w_line1, A_REVERSE);
-		myprintloc(w_line1, 0, 0, gettext("graph range: %7.2fms - %7.2fms    "), mi, ma);
+		myprintloc(w_line1, 0, 0, "graph range: %7.2fms - %7.2fms    ", mi, ma);
 		wattroff(w_line1, A_REVERSE);
 		wnoutrefresh(w_line1);
 
@@ -720,7 +719,7 @@ void show_stats_t(int y, int x, char *header, stats_t *data, char abbreviate)
 		char *sd_str  = format_value(calc_sd(data), 6, 2, abbreviate);
 
 		myprintloc(w_stats, y, x, "%s: %s %s %s %s %s", header,
-			data -> cur_valid ? cur_str : gettext("   n/a"),
+			data -> cur_valid ? cur_str : "   n/a",
 			min_str, avg_str, max_str, sd_str);
 
 		free(sd_str);
@@ -731,7 +730,7 @@ void show_stats_t(int y, int x, char *header, stats_t *data, char abbreviate)
 	}
 	else
 	{
-		myprintloc(w_stats, y, x, gettext("%s:    n/a"), header);
+		myprintloc(w_stats, y, x, "%s:    n/a", header);
 	}
 }
 
@@ -748,18 +747,18 @@ void update_stats(stats_t *resolve, stats_t *connect, stats_t *request, stats_t 
 		char buffer[4096] = { 0 }, *scc_str = NULL, *kalman_str = NULL;
 		int buflen = 0;
 
-		myprintloc(w_stats, 0, 0, "         %6s %6s %6s %6s %6s", gettext("latest"), gettext("min"), gettext("avg"), gettext("max"), gettext("sd"));
-		show_stats_t(1, 0, gettext("resolve"), resolve,   abbreviate);
-		show_stats_t(2, 0, gettext("connect"), connect,   abbreviate);
-		show_stats_t(3, 0, gettext("ssl    "), ssl_setup, abbreviate);
-		show_stats_t(4, 0, gettext("send   "), t_write,   abbreviate);
-		show_stats_t(5, 0, gettext("request"), request,   abbreviate);
-		show_stats_t(6, 0, gettext("close  "), close_st,  abbreviate);
-		show_stats_t(7, 0, gettext("total  "), total,     abbreviate);
+		myprintloc(w_stats, 0, 0, "         %6s %6s %6s %6s %6s", "latest", "min", "avg", "max", "sd");
+		show_stats_t(1, 0, "resolve", resolve,   abbreviate);
+		show_stats_t(2, 0, "connect", connect,   abbreviate);
+		show_stats_t(3, 0, "ssl    ", ssl_setup, abbreviate);
+		show_stats_t(4, 0, "send   ", t_write,   abbreviate);
+		show_stats_t(5, 0, "request", request,   abbreviate);
+		show_stats_t(6, 0, "close  ", close_st,  abbreviate);
+		show_stats_t(7, 0, "total  ", total,     abbreviate);
 
 		scc_str    = format_value(get_cur_scc(), 5, 3, abbreviate);
 		kalman_str = format_value(kalman_do(total -> cur), 5, 3, abbreviate);
-		myprintloc(w_stats, 8, 0, gettext("ok: %3d, fail: %3d%s, scc: %s, kalman: %s"), n_ok, n_fail, use_tfo ? gettext(", with TFO") : "", scc_str, kalman_str);
+		myprintloc(w_stats, 8, 0, "ok: %3d, fail: %3d%s, scc: %s, kalman: %s", n_ok, n_fail, use_tfo ? ", with TFO" : "", scc_str, kalman_str);
 		free(kalman_str);
 		free(scc_str);
 
@@ -768,29 +767,29 @@ void update_stats(stats_t *resolve, stats_t *connect, stats_t *request, stats_t 
 			double trend = calc_trend();
 			char trend_dir = ' ';
 
-			myprintloc(w_stats, 0, 45, "         %6s %6s %6s %6s %6s", gettext("cur"), gettext("min"), gettext("avg"), gettext("max"), gettext("sd"));
-			show_stats_t(1, 45, gettext("t offst"), st_to, abbreviate);
+			myprintloc(w_stats, 0, 45, "         %6s %6s %6s %6s %6s", "cur", "min", "avg", "max", "sd");
+			show_stats_t(1, 45, "t offst", st_to, abbreviate);
 
 #if defined(linux) || defined(__FreeBSD__)
-			show_stats_t(2, 45, gettext("tcp rtt"), tcp_rtt_stats, abbreviate);
+			show_stats_t(2, 45, "tcp rtt", tcp_rtt_stats, abbreviate);
 #endif
-			show_stats_t(3, 45, gettext("headers"), stats_header_size, abbreviate);
+			show_stats_t(3, 45, "headers", stats_header_size, abbreviate);
 
 			if (trend < 0)
 				trend_dir = '-';
 			else if (trend > 0)
 				trend_dir = '+';
 
-			myprintloc(w_stats, 8, 48, gettext("# cookies: %d"), n_cookies);
+			myprintloc(w_stats, 8, 48, "# cookies: %d", n_cookies);
 
 #ifdef linux
-			myprintloc(w_stats, 9, 48, gettext("trend: %c%6.2f%%, re-tx: %2d, pmtu: %5d, TOS: %02x"), trend_dir, fabs(trend), re_tx, pmtu, tos);
+			myprintloc(w_stats, 9, 48, "trend: %c%6.2f%%, re-tx: %2d, pmtu: %5d, TOS: %02x", trend_dir, fabs(trend), re_tx, pmtu, tos);
 #else
-			myprintloc(w_stats, 9, 48, gettext("trend: %c%6.2f%%, TOS: %02x"), trend_dir, fabs(trend), tos);
+			myprintloc(w_stats, 9, 48, "trend: %c%6.2f%%, TOS: %02x", trend_dir, fabs(trend), tos);
 #endif
 		}
 
-		buflen = snprintf(buffer, sizeof buffer, gettext("HTTP rc: %s, SSL fp: %s"), last_connect_str, fp ? fp : gettext("n/a"));
+		buflen = snprintf(buffer, sizeof buffer, "HTTP rc: %s, SSL fp: %s", last_connect_str, fp ? fp : "n/a");
 
 		if (buflen <= max_x)
 			myprintloc(w_stats, 9, 0, "%s", buffer);
@@ -798,11 +797,11 @@ void update_stats(stats_t *resolve, stats_t *connect, stats_t *request, stats_t 
 		{
 			static char prev_sf[48] = { 0 };
 
-			myprintloc(w_stats, 9, 0, gettext("http result code: %s"), last_connect_str);
+			myprintloc(w_stats, 9, 0, "http result code: %s", last_connect_str);
 
 			if (fp && strcmp(prev_sf, fp))
 			{
-				slow_log(gettext("\nSSL fingerprint: %s"), fp);
+				slow_log("\nSSL fingerprint: %s", fp);
 
 				memcpy(prev_sf, fp, 47);
 			}

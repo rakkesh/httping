@@ -1,6 +1,5 @@
 /* Released under AGPL v3 with exception for the OpenSSL library. See license.txt */
 #include <errno.h>
-#include <libintl.h>
 #include <string.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -77,7 +76,7 @@ int READ_SSL(SSL *const ssl_h, char *whereto, int len, const double timeout)
 
 		if (left <= 0.0)
 		{
-			set_error(gettext("Time-out on SSL connection"));
+			set_error("Time-out on SSL connection");
 			return -1;
 		}
 
@@ -94,14 +93,14 @@ int READ_SSL(SSL *const ssl_h, char *whereto, int len, const double timeout)
 		if (rc == -1)
 		{
 			if (errno != EINTR && errno != EAGAIN)
-				set_error(gettext("READ_SSL: io-error: %s"), strerror(errno));
+				set_error("READ_SSL: io-error: %s", strerror(errno));
 
 			return -1;
 		}
 
 		if (rc == 0)
 		{
-			set_error(gettext("Time-out on SSL connection (READ)"));
+			set_error("Time-out on SSL connection (READ)");
 			return -1;
 		}
 
@@ -109,7 +108,7 @@ int READ_SSL(SSL *const ssl_h, char *whereto, int len, const double timeout)
 		if (rc == -1)
 		{
 			if (errno != EINTR && errno != EAGAIN)
-				set_error(gettext("READ_SSL: io-error: %s"), strerror(errno));
+				set_error("READ_SSL: io-error: %s", strerror(errno));
 
 			return -1;
 		}
@@ -139,7 +138,7 @@ int WRITE_SSL(SSL *const ssl_h, const char *wherefrom, int len, const double tim
 
 		if (left <= 0.0)
 		{
-			set_error(gettext("Time-out on SSL connection"));
+			set_error("Time-out on SSL connection");
 			return -1;
 		}
 
@@ -156,14 +155,14 @@ int WRITE_SSL(SSL *const ssl_h, const char *wherefrom, int len, const double tim
 		if (rc == -1)
 		{
 			if (errno != EINTR && errno != EAGAIN)
-				set_error(gettext("WRITE_SSL: io-error: %s"), strerror(errno));
+				set_error("WRITE_SSL: io-error: %s", strerror(errno));
 
 			return -1;
 		}
 
 		if (rc == 0)
 		{
-			set_error(gettext("Time-out on SSL connection (write)"));
+			set_error("Time-out on SSL connection (write)");
 			return -1;
 		}
 
@@ -171,7 +170,7 @@ int WRITE_SSL(SSL *const ssl_h, const char *wherefrom, int len, const double tim
 		if (rc == -1)
 		{
 			if (errno != EINTR && errno != EAGAIN)
-				set_error(gettext("WRITE_SSL: io-error: %s"), strerror(errno));
+				set_error("WRITE_SSL: io-error: %s", strerror(errno));
 			return -1;
 		}
 
@@ -198,13 +197,13 @@ int connect_ssl(const int fd, SSL_CTX *const client_ctx, SSL **const ssl_h, BIO 
 
 	if (setsockopt(fd, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof tv) == -1)
 	{
-		set_error(gettext("problem setting receive timeout (%s)"), strerror(errno));
+		set_error("problem setting receive timeout (%s)", strerror(errno));
 		return -1;
 	}
 
 	if (setsockopt(fd, SOL_SOCKET, SO_SNDTIMEO, &tv, sizeof tv) == -1)
 	{
-		set_error(gettext("problem setting transmit timeout (%s)"), strerror(errno));
+		set_error("problem setting transmit timeout (%s)", strerror(errno));
 		return -1;
 	}
 
@@ -232,7 +231,7 @@ int connect_ssl(const int fd, SSL_CTX *const client_ctx, SSL **const ssl_h, BIO 
 
 				if (left <= 0)
 				{
-					set_error(gettext("Time-out during SSL handshake"));
+					set_error("Time-out during SSL handshake");
 					return -1;
 				}
 
@@ -249,7 +248,7 @@ int connect_ssl(const int fd, SSL_CTX *const client_ctx, SSL **const ssl_h, BIO 
 			}
 			else
 			{
-				set_error(gettext("SSL handshake error: %s"), SSL_get_error(*ssl_h, err));
+				set_error("SSL handshake error: %s", SSL_get_error(*ssl_h, err));
 				return -1;
 			}
 		}
@@ -360,7 +359,7 @@ int connect_ssl_proxy(const int fd, struct addrinfo *const ai, const double time
 	{
 		if ((rc = mywrite(fd, request_headers, request_headers_len, timeout)) < RC_OK)
 		{
-			set_error(gettext("Problem sending request to proxy"));
+			set_error("Problem sending request to proxy");
 			return rc;
 		}
 	}
@@ -369,7 +368,7 @@ int connect_ssl_proxy(const int fd, struct addrinfo *const ai, const double time
 	if (rc != RC_OK)
 	{
 		free(response_headers);
-		set_error(gettext("Problem retrieving proxy response"));
+		set_error("Problem retrieving proxy response");
 		return rc;
 	}
 
@@ -383,14 +382,14 @@ int connect_ssl_proxy(const int fd, struct addrinfo *const ai, const double time
 	if (!code)
 	{
 		free(response_headers);
-		set_error(gettext("Invalid proxy response headers"));
+		set_error("Invalid proxy response headers");
 		return RC_INVAL;
 	}
 
 	if (atoi(code + 1) != 200)
 	{
 		free(response_headers);
-		set_error(gettext("Proxy indicated error: %s"), code + 1);
+		set_error("Proxy indicated error: %s", code + 1);
 		return RC_INVAL;
 	}
 

@@ -6,7 +6,6 @@
 #include <netinet/in.h>
 #include <netinet/tcp.h>
 #include <arpa/inet.h>
-#include <libintl.h>
 #include <netdb.h>
 #include <errno.h>
 #include <stdio.h>
@@ -27,7 +26,7 @@ void failure_close(int fd)
 	sl.l_linger = 0;
 
 	if (setsockopt(fd, SOL_SOCKET, SO_LINGER, &sl, sizeof sl) == -1)
-		set_error(gettext("could not set TCP_NODELAY on socket (%s)"), strerror(errno));
+		set_error("could not set TCP_NODELAY on socket (%s)", strerror(errno));
 
 	close(fd);
 }
@@ -38,7 +37,7 @@ int set_no_delay(int fd)
 
 	if (setsockopt(fd, IPPROTO_TCP, TCP_NODELAY, (char *)&flag, sizeof(int)) == -1)
 	{
-		set_error(gettext("could not set TCP_NODELAY on socket (%s)"), strerror(errno));
+		set_error("could not set TCP_NODELAY on socket (%s)", strerror(errno));
 		return -1;
 	}
 
@@ -53,7 +52,7 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
 	fd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
 	if (fd == -1)
 	{
-		set_error(gettext("problem creating socket (%s)"), strerror(errno));
+		set_error("problem creating socket (%s)", strerror(errno));
 		return RC_INVAL;
 	}
 
@@ -65,14 +64,14 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
 		/* set reuse flags */
 		if (setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &set, sizeof set) == -1)
 		{
-			set_error(gettext("error setting sockopt to interface (%s)"), strerror(errno));
+			set_error("error setting sockopt to interface (%s)", strerror(errno));
 			close(fd);
 			return RC_INVAL;
 		}
 
 		if (bind(fd, bind_to, sizeof *bind_to) == -1)
 		{
-			set_error(gettext("error binding to interface (%s)"), strerror(errno));
+			set_error("error binding to interface (%s)", strerror(errno));
 			close(fd);
 			return RC_INVAL;
 		}
@@ -82,7 +81,7 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
 	{
 		if (setsockopt(fd, IPPROTO_TCP, TCP_MAXSEG, &max_mtu, sizeof max_mtu) == -1)
 		{
-			set_error(gettext("error setting MTU size (%s)"), strerror(errno));
+			set_error("error setting MTU size (%s)", strerror(errno));
 			close(fd);
 			return RC_INVAL;
 		}
@@ -100,7 +99,7 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
         {
 		if (setsockopt(fd, SOL_SOCKET, SO_SNDBUF, (char *)&tx_buffer_size, sizeof tx_buffer_size) == -1)
 		{
-			set_error(gettext("error setting transmit buffer size (%s)"), strerror(errno));
+			set_error("error setting transmit buffer size (%s)", strerror(errno));
 			close(fd);
 			return RC_INVAL;
 		}
@@ -110,7 +109,7 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
         {
 		if (setsockopt(fd, SOL_SOCKET, SO_RCVBUF, (char *)&recv_buffer_size, sizeof recv_buffer_size) == -1)
 		{
-			set_error(gettext("error setting receive buffer size (%s)"), strerror(errno));
+			set_error("error setting receive buffer size (%s)", strerror(errno));
 			close(fd);
 			return RC_INVAL;
 		}
@@ -121,7 +120,7 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
 	{
 		if (setsockopt(fd, SOL_SOCKET, SO_PRIORITY, (char *)&priority, sizeof priority) == -1)
 		{
-			set_error(gettext("error setting priority (%s)"), strerror(errno));
+			set_error("error setting priority (%s)", strerror(errno));
 			close(fd);
 			return RC_INVAL;
 		}
@@ -132,7 +131,7 @@ int create_socket(struct sockaddr *bind_to, struct addrinfo *ai, int recv_buffer
 	{
 		if (setsockopt(fd, IPPROTO_IP, IP_TOS, (char *)&tos, sizeof tos) == -1)
 		{
-			set_error(gettext("failed to set TOS info"));
+			set_error("failed to set TOS info");
 			close(fd);
 			return RC_INVAL;
 		}
@@ -170,7 +169,7 @@ int connect_to(int fd, struct addrinfo *ai, double timeout, char *tfo, char *msg
 			return RC_OK;
 		if(errno == ENOTSUP)
 		{
-			printf(gettext("TCP TFO Not Supported. Please check if \"/proc/sys/net/ipv4/tcp_fastopen\" is 1. Disabling TFO for now.\n"));
+			printf("TCP TFO Not Supported. Please check if \"/proc/sys/net/ipv4/tcp_fastopen\" is 1. Disabling TFO for now.\n");
 			*tfo = 0;
 			goto old_connect;
 		}
@@ -200,7 +199,7 @@ old_connect:
 			/* problem connecting */
 			if (errno != EINPROGRESS)
 			{
-				set_error(gettext("problem connecting to host: %s"), strerror(errno));
+				set_error("problem connecting to host: %s", strerror(errno));
 				return RC_INVAL;
 			}
 		}
@@ -213,7 +212,7 @@ old_connect:
 	rc = select(fd + 1, NULL, &wfds, NULL, &to);
 	if (rc == 0)
 	{
-		set_error(gettext("connect time out"));
+		set_error("connect time out");
 		return RC_TIMEOUT;	/* timeout */
 	}
 	else if (rc == -1)
@@ -221,7 +220,7 @@ old_connect:
 		if (errno == EINTR)
 			return RC_CTRLC;/* ^C pressed */
 
-		set_error(gettext("select() failed: %s"), strerror(errno));
+		set_error("select() failed: %s", strerror(errno));
 
 		return RC_INVAL;	/* error */
 	}
@@ -233,7 +232,7 @@ old_connect:
 		/* see if the connect succeeded or failed */
 		if (getsockopt(fd, SOL_SOCKET, SO_ERROR, &optval, &optvallen) == -1)
 		{
-			set_error(gettext("getsockopt failed (%s)"), strerror(errno));
+			set_error("getsockopt failed (%s)", strerror(errno));
 			return RC_INVAL;
 		}
 
@@ -245,7 +244,7 @@ old_connect:
 		errno = optval;
 	}
 
-	set_error(gettext("could not connect (%s)"), strerror(errno));
+	set_error("could not connect (%s)", strerror(errno));
 
 	return RC_INVAL;
 }

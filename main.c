@@ -4,7 +4,6 @@
 #include <sys/ioctl.h>
 #include <stdio.h>
 #include <locale.h>
-#include <libintl.h>
 #include <stdlib.h>
 #include <errno.h>
 #include <math.h>
@@ -117,7 +116,7 @@ void emit_statuslines(double run_time)
 		if (dummy)
 			*dummy = 0x00;
 
-		status_line(gettext("%s, run time: %.3fs, press ctrl + c to stop"), t_str, run_time);
+		status_line("%s, run time: %.3fs, press ctrl + c to stop", t_str, run_time);
 	}
 #else
 	(void)run_time;
@@ -259,7 +258,7 @@ void handler(int sig)
 #endif
 	{
 		if (!json_output)
-			fprintf(stderr, gettext("Got signal %d\n"), sig);
+			fprintf(stderr, "Got signal %d\n", sig);
 
 		stop = 1;
 	}
@@ -270,10 +269,10 @@ char * read_file(const char *file)
 	char buffer[4096] = { 0 }, *lf = NULL;
 	FILE *fh = fopen(file, "rb");
 	if (!fh)
-		error_exit(gettext("Cannot open password-file %s"), file);
+		error_exit("Cannot open password-file %s", file);
 
 	if (!fgets(buffer, sizeof buffer, fh))
-		error_exit(gettext("Problem reading password from file %s"), file);
+		error_exit("Problem reading password from file %s", file);
 
 	fclose(fh);
 
@@ -383,7 +382,7 @@ void interpret_url(const char *in, char **path, char **hostname, int *portnr, ch
 	char in_use[65536] = { 0 }, *dummy = NULL;
 
 	if (strlen(in) >= sizeof in_use)
-		error_exit(gettext("URL too big, HTTPing has a %d bytes limit"), sizeof in_use - 1);
+		error_exit("URL too big, HTTPing has a %d bytes limit", sizeof in_use - 1);
 
 	/* make url complete, if not already */
 	if (strncasecmp(in, "http://", 7) == 0 || strncasecmp(in, "https://", 8) == 0) /* complete url? */
@@ -402,7 +401,7 @@ void interpret_url(const char *in, char **path, char **hostname, int *portnr, ch
 
 	/* sanity check */
 	if (strncasecmp(in_use, "http://", 7) == 0 && use_ssl)
-		error_exit(gettext("using \"http://\" with SSL enabled (-l)"));
+		error_exit("using \"http://\" with SSL enabled (-l)");
 
 	*complete_url = strdup(in_use);
 
@@ -537,7 +536,7 @@ void do_aggregates(double cur_ms, int cur_ts, int n_aggregates, aggregate_t *agg
 			str_add(&line, "%s", show_ts ? ts : "");
 			free(ts);
 
-			str_add(&line, gettext("AGG[%d]: %d values, min/avg/max%s = %.1f/%.1f/%.1f"), a -> interval, a -> n_values, verbose ? gettext("/sd") : "", a -> min, avg, a -> max);
+			str_add(&line, "AGG[%d]: %d values, min/avg/max%s = %.1f/%.1f/%.1f", a -> interval, a -> n_values, verbose ? "/sd" : "", a -> min, avg, a -> max);
 
 			if (verbose)
 			{
@@ -594,7 +593,7 @@ void parse_nagios_settings(const char *in, double *nagios_warn, double *nagios_c
 {
 	char *dummy = strchr(in, ',');
 	if (!dummy)
-		error_exit(gettext("-n: missing parameter\n"));
+		error_exit("-n: missing parameter\n");
 
 	*nagios_warn = atof(in);
 
@@ -612,7 +611,7 @@ void parse_bind_to(const char *in, struct sockaddr_in *bind_to_4, struct sockadd
 		bind_to_6 -> sin6_family = AF_INET6;
 
 		if (inet_pton(AF_INET6, in, &bind_to_6 -> sin6_addr) != 1)
-			error_exit(gettext("cannot convert ip address '%s' (for -y)\n"), in);
+			error_exit("cannot convert ip address '%s' (for -y)\n", in);
 	}
 	else
 	{
@@ -621,7 +620,7 @@ void parse_bind_to(const char *in, struct sockaddr_in *bind_to_4, struct sockadd
 		bind_to_4 -> sin_family = AF_INET;
 
 		if (inet_pton(AF_INET, in, &bind_to_4 -> sin_addr) != 1)
-			error_exit(gettext("cannot convert ip address '%s' (for -y)\n"), in);
+			error_exit("cannot convert ip address '%s' (for -y)\n", in);
 	}
 }
 
@@ -728,21 +727,21 @@ int nagios_result(int ok, int nagios_mode, int nagios_exit_code, double avg_http
 	{
 		if (ok == 0)
 		{
-			printf(gettext("CRITICAL - connecting failed: %s"), get_error());
+			printf("CRITICAL - connecting failed: %s", get_error());
 			return 2;
 		}
 		else if (avg_httping_time >= nagios_crit)
 		{
-			printf(gettext("CRITICAL - average httping-time is %.1f\n"), avg_httping_time);
+			printf("CRITICAL - average httping-time is %.1f\n", avg_httping_time);
 			return 2;
 		}
 		else if (avg_httping_time >= nagios_warn)
 		{
-			printf(gettext("WARNING - average httping-time is %.1f\n"), avg_httping_time);
+			printf("WARNING - average httping-time is %.1f\n", avg_httping_time);
 			return 1;
 		}
 
-		printf(gettext("OK - average httping-time is %.1f (%s)|ping=%f\n"), avg_httping_time, get_error(), avg_httping_time);
+		printf("OK - average httping-time is %.1f (%s)|ping=%f\n", avg_httping_time, get_error(), avg_httping_time);
 
 		return 0;
 	}
@@ -752,11 +751,11 @@ int nagios_result(int ok, int nagios_mode, int nagios_exit_code, double avg_http
 
 		if (ok && err[0] == 0x00)
 		{
-			printf(gettext("OK - all fine, avg httping time is %.1f|ping=%f\n"), avg_httping_time, avg_httping_time);
+			printf("OK - all fine, avg httping time is %.1f|ping=%f\n", avg_httping_time, avg_httping_time);
 			return 0;
 		}
 
-		printf(gettext("%s: - failed: %s"), nagios_exit_code == 1?"WARNING":(nagios_exit_code == 2?"CRITICAL":"ERROR"), err);
+		printf("%s: - failed: %s", nagios_exit_code == 1?"WARNING":(nagios_exit_code == 2?"CRITICAL":"ERROR"), err);
 		return nagios_exit_code;
 	}
 
@@ -840,19 +839,19 @@ void stats_line(const char with_header, const char *const complete_url, const in
 	int dummy = count;
 
 	if (with_header)
-		printf(gettext("--- %s ping statistics ---\n"), complete_url);
+		printf("--- %s ping statistics ---\n", complete_url);
 
 	if (curncount == 0 && err > 0)
-		fprintf(stderr, gettext("internal error! (curncount)\n"));
+		fprintf(stderr, "internal error! (curncount)\n");
 
 	if (count == -1)
 		dummy = curncount;
 
-	printf(gettext("%s%d%s connects, %s%d%s ok, %s%3.2f%%%s failed, time %s%s%.0fms%s\n"), c_yellow, curncount, c_normal, c_green, ok, c_normal, c_red, (((double)err) / ((double)dummy)) * 100.0, c_normal, c_blue, c_bright, total_took * 1000.0, c_normal);
+	printf("%s%d%s connects, %s%d%s ok, %s%3.2f%%%s failed, time %s%s%.0fms%s\n", c_yellow, curncount, c_normal, c_green, ok, c_normal, c_red, (((double)err) / ((double)dummy)) * 100.0, c_normal, c_blue, c_bright, total_took * 1000.0, c_normal);
 
 	if (ok > 0)
 	{
-		printf(gettext("round-trip min/avg/max%s = %s%.1f%s/%s%.1f%s/%s%.1f%s"), verbose ? gettext("/sd") : "", c_bright, t_total -> min, c_normal, c_bright, avg_httping_time, c_normal, c_bright, t_total -> max, c_normal);
+		printf("round-trip min/avg/max%s = %s%.1f%s/%s%.1f%s/%s%.1f%s", verbose ? "/sd" : "", c_bright, t_total -> min, c_normal, c_bright, avg_httping_time, c_normal, c_bright, t_total -> max, c_normal);
 
 		if (verbose)
 		{
@@ -863,7 +862,7 @@ void stats_line(const char with_header, const char *const complete_url, const in
 		printf(" ms\n");
 
 		if (bps)
-			printf(gettext("Transfer speed: min/avg/max = %s%f%s/%s%f%s/%s%f%s KB\n"), c_bright, bps -> Bps_min / 1024, c_normal, c_bright, (bps -> Bps_avg / (double)ok) / 1024.0, c_normal, c_bright, bps -> Bps_max / 1024.0, c_normal);
+			printf("Transfer speed: min/avg/max = %s%f%s/%s%f%s/%s%f%s KB\n", c_bright, bps -> Bps_min / 1024, c_normal, c_bright, (bps -> Bps_avg / (double)ok) / 1024.0, c_normal, c_bright, bps -> Bps_max / 1024.0, c_normal);
 	}
 }
 
@@ -1141,7 +1140,7 @@ int main(int argc, char *argv[])
 				break;
 
 			case 'A':
-				fprintf(stderr, gettext("\n *** -A is no longer required ***\n\n"));
+				fprintf(stderr, "\n *** -A is no longer required ***\n\n");
 				break;
 
 			case 'M':
@@ -1286,7 +1285,7 @@ int main(int argc, char *argv[])
 			case 'i':
 				wait = atof(optarg);
 				if (wait < 0.0)
-					error_exit(gettext("-i cannot have a value smaller than zero"));
+					error_exit("-i cannot have a value smaller than zero");
 				wait_set = 1;
 				break;
 
@@ -1340,7 +1339,7 @@ int main(int argc, char *argv[])
 
 			case 'n':
 				if (nagios_mode)
-					error_exit(gettext("-n and -N are mutual exclusive\n"));
+					error_exit("-n and -N are mutual exclusive\n");
 				else
 					nagios_mode = 1;
 
@@ -1348,7 +1347,7 @@ int main(int argc, char *argv[])
 				break;
 
 			case 'N':
-				if (nagios_mode) error_exit(gettext("-n and -N are mutual exclusive\n"));
+				if (nagios_mode) error_exit("-n and -N are mutual exclusive\n");
 				nagios_mode = 2;
 				nagios_exit_code = atoi(optarg);
 				break;
@@ -1369,7 +1368,7 @@ int main(int argc, char *argv[])
 #ifdef TCP_TFO
 				use_tfo = 1;
 #else
-				fprintf(stderr, gettext("Warning: TCP TFO is not supported. Disabling.\n"));
+				fprintf(stderr, "Warning: TCP TFO is not supported. Disabling.\n");
 #endif
 				break;
 
@@ -1385,7 +1384,7 @@ int main(int argc, char *argv[])
 				fprintf(stderr, "\n");
 				version();
 
-				fprintf(stderr, gettext("\n\nPlease run:\n\t%s --help\nto see a list of options.\n\n"), argv[0]);
+				fprintf(stderr, "\n\nPlease run:\n\t%s --help\nto see a list of options.\n\n", argv[0]);
 
 				return 1;
 		}
@@ -1399,20 +1398,20 @@ int main(int argc, char *argv[])
 
 	if (!url)
 	{
-		fprintf(stderr, gettext("No URL/host to ping given\n\n"));
+		fprintf(stderr, "No URL/host to ping given\n\n");
 		return 1;
 	}
 
 	if (machine_readable + json_output + ncurses_mode > 1)
-		error_exit(gettext("Cannot combine -m, -M and -K"));
+		error_exit("Cannot combine -m, -M and -K");
 
 	if ((machine_readable || json_output) && n_aggregates > 0)
-		error_exit(gettext("Aggregates can only be used in non-machine/json-output mode"));
+		error_exit("Aggregates can only be used in non-machine/json-output mode");
 
 	clear_error();
 
 	if (!(get_instead_of_head || use_ssl) && show_Bps)
-		error_exit(gettext("-b/-B can only be used when also using -G (GET instead of HEAD) or -l (use SSL)\n"));
+		error_exit("-b/-B can only be used when also using -G (GET instead of HEAD) or -l (use SSL)\n");
 
 	if (colors)
 		set_colors(ncurses_mode);
@@ -1442,36 +1441,36 @@ int main(int argc, char *argv[])
 #ifdef NC
 		if (ncurses_mode)
 		{
-			slow_log(gettext("\nAuto enabling SSL due to https-URL\n"));
+			slow_log("\nAuto enabling SSL due to https-URL\n");
 			update_terminal();
 		}
 		else
 #endif
 		{
-			fprintf(stderr, gettext("Auto enabling SSL due to https-URL\n"));
+			fprintf(stderr, "Auto enabling SSL due to https-URL\n");
 		}
 	}
 
 	if (use_tfo && use_ssl)
-		error_exit(gettext("TCP Fast open and SSL not supported together\n"));
+		error_exit("TCP Fast open and SSL not supported together\n");
 
 	if (verbose)
 	{
 #ifdef NC
 		if (ncurses_mode)
 		{
-			slow_log(gettext("\nConnecting to host %s, port %d and requesting file %s"), hostname, portnr, get);
+			slow_log("\nConnecting to host %s, port %d and requesting file %s", hostname, portnr, get);
 
 			if (proxy_host)
-				slow_log(gettext("\nUsing proxyserver: %s:%d"), proxy_host, proxy_port);
+				slow_log("\nUsing proxyserver: %s:%d", proxy_host, proxy_port);
 		}
 		else
 #endif
 		{
-			printf(gettext("Connecting to host %s, port %d and requesting file %s\n\n"), hostname, portnr, get);
+			printf("Connecting to host %s, port %d and requesting file %s\n\n", hostname, portnr, get);
 
 			if (proxy_host)
-				fprintf(stderr, gettext("Using proxyserver: %s:%d\n"), proxy_host, proxy_port);
+				fprintf(stderr, "Using proxyserver: %s:%d\n", proxy_host, proxy_port);
 		}
 	}
 
@@ -1481,7 +1480,7 @@ int main(int argc, char *argv[])
 		client_ctx = initialize_ctx(ask_compression);
 		if (!client_ctx)
 		{
-			set_error(gettext("problem creating SSL context"));
+			set_error("problem creating SSL context");
 			goto error_exit;
 		}
 	}
@@ -1501,7 +1500,7 @@ int main(int argc, char *argv[])
 		printf("[\n");
 
 	if (adaptive_interval && wait <= 0.0)
-		error_exit(gettext("Interval must be > 0 when using adaptive interval"));
+		error_exit("Interval must be > 0 when using adaptive interval");
 
 	signal(SIGINT, handler);
 	signal(SIGTERM, handler);
@@ -1527,7 +1526,7 @@ int main(int argc, char *argv[])
 #ifdef NC
 		if (ncurses_mode)
 		{
-			slow_log(gettext("\nResolving hostname %s"), proxy_host);
+			slow_log("\nResolving hostname %s", proxy_host);
 			update_terminal();
 		}
 #endif
@@ -1537,7 +1536,7 @@ int main(int argc, char *argv[])
 
 		ai_use_proxy = select_resolved_host(ai_proxy, use_ipv6);
 		if (!ai_use_proxy)
-			error_exit(gettext("No valid IPv4 or IPv6 address found for %s"), proxy_host);
+			error_exit("No valid IPv4 or IPv6 address found for %s", proxy_host);
 	}
 	else if (resolve_once)
 	{
@@ -1545,7 +1544,7 @@ int main(int argc, char *argv[])
 #ifdef NC
 		if (ncurses_mode)
 		{
-			slow_log(gettext("\nResolving hostname %s"), res_host);
+			slow_log("\nResolving hostname %s", res_host);
 			update_terminal();
 		}
 #endif
@@ -1562,7 +1561,7 @@ int main(int argc, char *argv[])
 		ai_use = select_resolved_host(ai, use_ipv6);
 		if (!ai_use)
 		{
-			set_error(gettext("No valid IPv4 or IPv6 address found for %s"), res_host);
+			set_error("No valid IPv4 or IPv6 address found for %s", res_host);
 
 			if (abort_on_resolve_failure)
 				error_exit(get_error());
@@ -1627,7 +1626,7 @@ persistent_loop:
 #ifdef NC
 				if (ncurses_mode && first_resolve)
 				{
-					slow_log(gettext("\nResolving hostname %s"), res_host);
+					slow_log("\nResolving hostname %s", res_host);
 					update_terminal();
 					first_resolve = 0;
 				}
@@ -1653,7 +1652,7 @@ persistent_loop:
 				ai_use = select_resolved_host(ai, use_ipv6);
 				if (!ai_use)
 				{
-					set_error(gettext("No valid IPv4 or IPv6 address found for %s"), res_host);
+					set_error("No valid IPv4 or IPv6 address found for %s", res_host);
 					emit_error(verbose, curncount, dstart);
 					err++;
 
@@ -1687,9 +1686,9 @@ persistent_loop:
 				notify_cnt++;
 
 				if (notify_cnt == MAX_SHOW_SUPPRESSION + 1)
-					str_add(&line, gettext("Will no longer inform about request headers too large."));
+					str_add(&line, "Will no longer inform about request headers too large.");
 				else if (notify_cnt <= MAX_SHOW_SUPPRESSION)
-					str_add(&line, gettext("Request headers > 4KB! (%d bytes) This may give failures with some HTTP servers."), req_len);
+					str_add(&line, "Request headers > 4KB! (%d bytes) This may give failures with some HTTP servers.", req_len);
 
 				if (line)
 				{
@@ -1793,7 +1792,7 @@ persistent_loop:
 			if (fd < 0)
 			{
 				if (fd == RC_TIMEOUT)
-					set_error(gettext("timeout connecting to host"));
+					set_error("timeout connecting to host");
 
 				emit_error(verbose, curncount, dstart);
 				err++;
@@ -1858,15 +1857,15 @@ persistent_loop:
 				}
 
 				if (rc == -1)
-					set_error(gettext("error sending request to host"));
+					set_error("error sending request to host");
 				else if (rc == RC_TIMEOUT)
-					set_error(gettext("timeout sending to host"));
+					set_error("timeout sending to host");
 				else if (rc == RC_INVAL)
-					set_error(gettext("retrieved invalid data from host"));
+					set_error("retrieved invalid data from host");
 				else if (rc == RC_CTRLC)
 				{/* ^C */}
 				else if (rc == 0)
-					set_error(gettext("connection prematurely closed by peer"));
+					set_error("connection prematurely closed by peer");
 
 				emit_error(verbose, curncount, dstart);
 
@@ -1902,9 +1901,9 @@ persistent_loop:
 
 					in_transit_cnt++;
 					if (in_transit_cnt == MAX_SHOW_SUPPRESSION + 1)
-						slow_log(gettext("\nNo longer emitting message about \"still data in transit\""));
+						slow_log("\nNo longer emitting message about \"still data in transit\"");
 					else if (in_transit_cnt <= MAX_SHOW_SUPPRESSION)
-						slow_log(gettext("\nHTTP server started sending data with %d bytes still in transit"), info.tcpi_unacked);
+						slow_log("\nHTTP server started sending data with %d bytes still in transit", info.tcpi_unacked);
 				}
 #endif
 
@@ -1913,7 +1912,7 @@ persistent_loop:
 					stats_close(&fd, &t_close, 1);
 
 					rc = RC_TIMEOUT;
-					set_error(gettext("timeout sending to host"));
+					set_error("timeout sending to host");
 
 					emit_error(verbose, curncount, dstart);
 
@@ -1926,7 +1925,7 @@ persistent_loop:
 
 			if (getsockopt(fd, IPPROTO_IP, IP_TOS, &recv_tos, &recv_tos_len) == -1)
 			{
-				set_error(gettext("failed to obtain TOS info"));
+				set_error("failed to obtain TOS info");
 				recv_tos = -1;
 			}
 #endif
@@ -1940,9 +1939,9 @@ persistent_loop:
 
 				more_data_cnt++;
 				if (more_data_cnt == MAX_SHOW_SUPPRESSION + 1)
-					slow_log(gettext("\nNo longer emitting message about \"more data than response headers\""));
+					slow_log("\nNo longer emitting message about \"more data than response headers\"");
 				else if (more_data_cnt <= MAX_SHOW_SUPPRESSION)
-					slow_log(gettext("\nHTTP server sent more data than just the response headers"));
+					slow_log("\nHTTP server sent more data than just the response headers");
 			}
 #endif
 
@@ -1991,7 +1990,7 @@ persistent_loop:
 				char *length = strstr(reply, "\nContent-Length:");
 				if (!length)
 				{
-					set_error(gettext("'Content-Length'-header missing!"));
+					set_error("'Content-Length'-header missing!");
 					emit_error(verbose, curncount, dstart);
 					stats_close(&fd, &t_close, 1);
 					break;
@@ -2023,9 +2022,9 @@ persistent_loop:
 				}
 
 				if (rc == RC_SHORTREAD)
-					set_error(gettext("short read during receiving reply-headers from host"));
+					set_error("short read during receiving reply-headers from host");
 				else if (rc == RC_TIMEOUT)
-					set_error(gettext("timeout while receiving reply-headers from host"));
+					set_error("timeout while receiving reply-headers from host");
 
 				emit_error(verbose, curncount, dstart);
 
@@ -2058,7 +2057,7 @@ persistent_loop:
 					if (rc == -1)
 					{
 						if (errno != EINTR && errno != EAGAIN)
-							error_exit(gettext("read of response body dataa failed"));
+							error_exit("read of response body dataa failed");
 					}
 					else if (rc == 0)
 					{
@@ -2093,7 +2092,7 @@ persistent_loop:
 				{
 					if (close_ssl_connection(ssl_h) == -1)
 					{
-						set_error(gettext("error shutting down ssl"));
+						set_error("error shutting down ssl");
 						emit_error(verbose, curncount, dstart);
 					}
 
@@ -2141,7 +2140,7 @@ persistent_loop:
 				if (proxy_host)
 					snprintf(current_host, sizeof current_host, "%s", hostname);
 				else if (getnameinfo((const struct sockaddr *)&addr, sizeof addr, current_host, sizeof current_host, NULL, 0, NI_NUMERICHOST) == -1)
-					snprintf(current_host, sizeof current_host, gettext("getnameinfo() failed: %d (%s)"), errno, strerror(errno));
+					snprintf(current_host, sizeof current_host, "getnameinfo() failed: %d (%s)", errno, strerror(errno));
 
 				emit_json(1, curncount, dstart, &t_resolve, &t_connect, &t_request, atoi(sc ? sc : "-1"), sc ? sc : "?", headers_len, len, Bps, current_host, fp, toff_diff_ts, tfo_success, &t_ssl, &t_write, &t_close, n_dynamic_cookies, &stats_to, &tcp_rtt_stats, re_tx, pmtu, recv_tos, &t_total);
 			}
@@ -2178,7 +2177,7 @@ persistent_loop:
 				char *line = NULL;
 				const char *ms_color = c_green;
 				char current_host[4096] = { 0 };
-				char *operation = !persistent_connections ? gettext("connected to") : gettext("pinged host");
+				char *operation = !persistent_connections ? "connected to" : "pinged host";
 				const char *sep = c_bright, *unsep = c_normal;
 
 				if (show_ts || ncurses_mode)
@@ -2204,7 +2203,7 @@ persistent_loop:
 				if (proxy_host)
 					snprintf(current_host, sizeof current_host, "%s", hostname);
 				else if (getnameinfo((const struct sockaddr *)&addr, sizeof addr, current_host, sizeof current_host, NULL, 0, NI_NUMERICHOST) == -1)
-					snprintf(current_host, sizeof current_host, gettext("getnameinfo() failed: %d (%s)"), errno, strerror(errno));
+					snprintf(current_host, sizeof current_host, "getnameinfo() failed: %d (%s)", errno, strerror(errno));
 
 				if (addr.sin6_family == AF_INET6)
 				{
@@ -2221,21 +2220,21 @@ persistent_loop:
 					str_add(&line, "%s%s ", c_white, operation);
 
 				if (persistent_connections && show_bytes_xfer)
-					str_add(&line, gettext("%s%s%s%s%s:%s%d%s (%d/%d bytes), seq=%s%d%s "), c_red, i6_bs, current_host, i6_be, c_white, c_yellow, portnr, c_white, headers_len, len, c_blue, curncount-1, c_white);
+					str_add(&line, "%s%s%s%s%s:%s%d%s (%d/%d bytes), seq=%s%d%s ", c_red, i6_bs, current_host, i6_be, c_white, c_yellow, portnr, c_white, headers_len, len, c_blue, curncount-1, c_white);
 				else
-					str_add(&line, gettext("%s%s%s%s%s:%s%d%s (%d bytes), seq=%s%d%s "), c_red, i6_bs, current_host, i6_be, c_white, c_yellow, portnr, c_white, headers_len, c_blue, curncount-1, c_white);
+					str_add(&line, "%s%s%s%s%s:%s%d%s (%d bytes), seq=%s%d%s ", c_red, i6_bs, current_host, i6_be, c_white, c_yellow, portnr, c_white, headers_len, c_blue, curncount-1, c_white);
 
 				tot_str = format_value(t_total.cur, 6, 2, abbreviate);
 
 				if (split)
 				{
-					char *res_str = t_resolve.cur_valid ? format_value(t_resolve.cur, 6, 2, abbreviate) : strdup(gettext("   n/a"));
-					char *con_str = t_connect.cur_valid ? format_value(t_connect.cur, 6, 2, abbreviate) : strdup(gettext("   n/a"));
+					char *res_str = t_resolve.cur_valid ? format_value(t_resolve.cur, 6, 2, abbreviate) : strdup("   n/a");
+					char *con_str = t_connect.cur_valid ? format_value(t_connect.cur, 6, 2, abbreviate) : strdup("   n/a");
 					char *wri_str = format_value(t_write.cur, 6, 2, abbreviate);
 					char *req_str = format_value(t_request.cur, 6, 2, abbreviate);
 					char *clo_str = format_value(t_close.cur, 6, 2, abbreviate);
 
-					str_add(&line, gettext("time=%s+%s+%s+%s+%s%s=%s%s%s%s ms %s%s%s"), res_str, con_str, wri_str, req_str, clo_str, sep, unsep, ms_color, tot_str, c_white, c_cyan, sc?sc:"", c_white);
+					str_add(&line, "time=%s+%s+%s+%s+%s%s=%s%s%s%s ms %s%s%s", res_str, con_str, wri_str, req_str, clo_str, sep, unsep, ms_color, tot_str, c_white, c_cyan, sc?sc:"", c_white);
 
 					free(clo_str);
 					free(req_str);
@@ -2245,7 +2244,7 @@ persistent_loop:
 				}
 				else
 				{
-					str_add(&line, gettext("time=%s%s%s ms %s%s%s"), ms_color, tot_str, c_white, c_cyan, sc?sc:"", c_white);
+					str_add(&line, "time=%s%s%s ms %s%s%s", ms_color, tot_str, c_white, c_cyan, sc?sc:"", c_white);
 				}
 
 				free(tot_str);
@@ -2265,8 +2264,8 @@ persistent_loop:
 					{
 						str_add(&line, " (");
 						if (!is_compressed)
-							str_add(&line, gettext("not "));
-						str_add(&line, gettext("compressed)"));
+							str_add(&line, "not ");
+						str_add(&line, "compressed)");
 					}
 				}
 
@@ -2278,11 +2277,11 @@ persistent_loop:
 				if (verbose > 0 && their_ts > 0)
 				{
 					/*  if diff_ts > 0, then their clock is running too fast */
-					str_add(&line, gettext(" toff=%d"), (int)toff_diff_ts);
+					str_add(&line, " toff=%d", (int)toff_diff_ts);
 				}
 
 				if (verbose > 0 && age > 0)
-					str_add(&line, gettext(" age=%d"), age);
+					str_add(&line, " age=%d", age);
 
 				str_add(&line, "%s", c_normal);
 
