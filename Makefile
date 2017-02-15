@@ -79,7 +79,7 @@ endif
 ifeq ($(NC),yes)
 CFLAGS+=-DNC
 OBJS+=nc.o
-LDFLAGS+=-lncursesw
+LDFLAGS+=-lncurses
 endif
 
 ifeq ($(FW),yes)
