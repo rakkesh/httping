@@ -55,8 +55,6 @@ MKDIR=/bin/mkdir
 ARCHIVE=/bin/tar cf -
 COMPRESS=/bin/gzip -9
 
-TRANSLATIONS=nl.mo ru.mo
-
 OBJS=gen.o http.o io.o error.o utils.o main.o tcp.o res.o socks5.o kalman.o cookies.o help.o colors.o
 
 MAN_EN=httping.1
@@ -97,14 +95,14 @@ ifeq ($(ARM),yes)
 CC=arm-linux-gcc
 endif
 
-all: $(TARGET) $(TRANSLATIONS)
+all: $(TARGET)
 
 $(TARGET): $(OBJS)
 	$(CC) $(WFLAGS) $(OBJS) $(LDFLAGS) -o $(TARGET)
 	#
 	# Oh, blatant plug: http://www.vanheusden.com/wishlist.php
 
-install: $(TARGET) $(TRANSLATIONS)
+install: $(TARGET)
 	$(INSTALLDIR) $(DESTDIR)/$(BINDIR)
 	$(INSTALLBIN) $(TARGET) $(DESTDIR)/$(BINDIR)
 	$(INSTALLDIR) $(DESTDIR)/$(MANDIR)/man1
@@ -118,23 +116,13 @@ install: $(TARGET) $(TRANSLATIONS)
 ifneq ($(DEBUG),yes)
 	$(STRIP) $(DESTDIR)/$(BINDIR)/$(TARGET)
 endif
-	mkdir -p $(DESTDIR)/$(PREFIX)/share/locale/nl/LC_MESSAGES
-	cp nl.mo $(DESTDIR)/$(PREFIX)/share/locale/nl/LC_MESSAGES/httping.mo
-	mkdir -p $(DESTDIR)/$(PREFIX)/share/locale/ru/LC_MESSAGES
-	cp ru.mo $(DESTDIR)/$(PREFIX)/share/locale/ru/LC_MESSAGES/httping.mo
 
 
 makefile.inc:
 	./configure
 
-nl.mo: nl.po
-	msgfmt -o nl.mo nl.po
-ru.mo: ru.po
-	msgfmt -o ru.mo ru.po
-
-
 clean:
-	$(RMDIR) $(OBJS) $(TARGET) *~ core cov-int *.mo
+	$(RMDIR) $(OBJS) $(TARGET) *~ core cov-int 
 
 distclean: clean
 	rm -f makefile.inc
